@@ -1,55 +1,60 @@
-# highscores
+# Highscores
 
-Leaderboards for daily "-dle" games. Paste your result, climb the table. See [PLAN.md](PLAN.md) for the design.
+**Leaderboards for daily "-dle" games.** Paste the result you'd share with friends, and see how you stack up: today, all-time, and across every game.
 
-## Supabase setup (one time)
+▶ **Play at [vitryssen.github.io/highscores](https://vitryssen.github.io/highscores/)**
 
-1. Create a free project at [supabase.com](https://supabase.com) and note its **project ref** (the `xxxx` in `https://xxxx.supabase.co`).
-2. Log in and link the repo:
-   ```sh
-   npx supabase login
-   npx supabase link --project-ref <project-ref>
+## How it works
+
+1. Finish today's puzzle and copy the share text, e.g.
    ```
-3. Apply the schema and push the auth/API settings (sign-ups disabled, 500-row cap):
-   ```sh
-   npx supabase db push
-   npx supabase config push
+   Wordle 1,922 3/6
+   ⬛🟨⬛⬛⬛
+   🟩🟩🟩🟩🟩
    ```
-4. Create the admin account: Dashboard → **Authentication → Users → Add user** (email + a strong password, "Auto confirm" on). Then in **SQL Editor**:
-   ```sql
-   insert into public.admins (user_id)
-   select id from auth.users where email = 'you@example.com';
-   ```
-5. Dashboard → **Advisors → Security Advisor** should report no errors.
+2. Paste it on the site with your name. The game is detected automatically, and you see your score before you submit.
+3. Your run lands on that puzzle's leaderboard, with your grid shown next to it.
 
-Admins can only be added through the SQL Editor. The API can't do it.
+No account needed: just type your name. It's remembered in your browser, and names are matched regardless of capitals, so `andré` and `André` are the same player.
 
-## Web app (local development)
+## Supported games
 
-```sh
-cd web
-cp .env.example .env.local   # fill in the project URL and the *publishable* key
-npm install
-npm run dev                  # http://localhost:5173/highscores/
-```
+| Game | Scored by | Best score |
+|---|---|---|
+| [Wordle](https://www.nytimes.com/games/wordle/index.html) | Guesses (X/6 = failed) | Fewest |
+| [Ordel](https://ordel.se/) | Guesses (X/6 = failed) | Fewest |
+| [RNGdle](https://www.rngdle.org/) | EP from the day's roll | Highest |
+| [Krillion](https://krillion.io/) | Depth score (max 700) | Highest |
+| [Pokedle](https://pokedle.net/) | Guesses across all four modes, added up | Fewest |
 
-`npm run build` type-checks and builds to `web/dist`. The production build adds a strict Content-Security-Policy `<meta>` tag. `npm run lint` bans `dangerouslySetInnerHTML`.
+Each game follows its own daily reset, so "today" always means the same puzzle the game itself is showing. More games can be added by the admin, including games with unusual formats: they paste a sample result and click the puzzle number and the score.
 
-The shared parser lives in `supabase/functions/_shared/` and is imported by both the web app (`@shared/…`) and the Edge Function.
+Slack and Discord shortcodes like `:large_green_square:` are fine. They're shown as the real emoji.
 
-## Deploy (GitHub Pages)
+## Scoring
 
-Pushing to `master` builds and deploys the site (`.github/workflows/deploy.yml`). One-time setup in the GitHub repo:
+- **Every puzzle is a race.** Players are ranked by score, and a tie goes to whoever submitted first.
+- **F1 points** go to the top ten: 25, 18, 15, 12, 10, 8, 6, 4, 2, 1. Failed runs are listed but never score.
+- **All-time table** per game: total points, wins, runs and average place.
+- **Grand Prix**: everyone's points added up across all games.
+- **Player profiles**: your rank and points in each game, plus your recent runs.
 
-1. **Settings → Pages → Source: GitHub Actions**.
-2. **Settings → Secrets and variables → Actions → Variables**: add `VITE_SUPABASE_URL` and `VITE_SUPABASE_KEY` (the *publishable* key). These are public values, so they're Variables, not Secrets.
-3. **Settings → Advanced Security**: enable *Secret Protection* (secret scanning + push protection) and *Dependabot alerts*.
+## Fair play
 
-`keepalive.yml` pings Supabase daily so the free project never pauses. GitHub disables scheduled workflows after 60 days without repo activity, so re-enable it in the Actions tab if that happens.
+- **One run per player per puzzle.** A second paste for the same puzzle is rejected.
+- **Only today's or yesterday's puzzle** can be submitted, so nobody can dig up an old best score.
+- **Impossible scores are rejected**, like a Krillion score above 700 or an unfinished Pokedle run.
+- **Submissions are rate-limited** to stop spam.
+- **Admins can fix mistakes.** They can edit or delete a run (the player can then submit again), rename or remove players, and add runs for older puzzles.
 
-Database migrations and the Edge Function are deployed manually:
+Nothing can prove a pasted result was really played, so the leaderboard runs on trust between friends, with the admin as referee.
 
-```sh
-npx supabase db push
-npx supabase functions deploy submit-run --use-api
-```
+## Privacy and security
+
+- No sign-up, no tracking, no ads, and no third-party requests: fonts are served by the site itself.
+- The only thing stored about you is the name you type and the results you paste. Rate limiting keeps only a one-way hash of your IP address, never the address itself.
+- Admin access needs a password **and** an authenticator-app code.
+
+---
+
+Running your own copy? See [docs/SETUP.md](docs/SETUP.md).
