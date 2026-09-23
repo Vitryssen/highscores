@@ -10,6 +10,7 @@
    ```
    Wordle 1,922 3/6
    ⬛🟨⬛⬛⬛
+   🟨⬛🟩⬛🟩
    🟩🟩🟩🟩🟩
    ```
 2. Paste it on the site with your name. The game is detected automatically, and you see your score before you submit.
