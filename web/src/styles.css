@@ -742,3 +742,25 @@ code,
   border-color: var(--pink);
   color: var(--bg);
 }
+
+/* Profiles + Grand Prix */
+
+.player-link {
+  color: inherit;
+}
+.player-link:hover {
+  color: var(--cyan);
+}
+.after-grid {
+  margin-top: 20px;
+}
+.profile-grid {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+@media (min-width: 860px) {
+  .profile-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+}

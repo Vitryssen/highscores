@@ -1,6 +1,7 @@
 import { useGames } from '../lib/useGames.ts';
 import { PasteBox } from '../components/PasteBox.tsx';
 import { GameCard } from '../components/GameCard.tsx';
+import { GrandPrix } from '../components/GrandPrix.tsx';
 
 export function Home() {
   const { data: games, isLoading, error } = useGames();
@@ -22,6 +23,9 @@ export function Home() {
             ))}
           </div>
         </section>
+      </div>
+      <div className="after-grid">
+        <GrandPrix />
       </div>
     </>
   );

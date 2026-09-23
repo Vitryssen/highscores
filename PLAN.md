@@ -214,5 +214,5 @@ HashRouter (`/#/…`), because GitHub Pages can't rewrite SPA routes.
 4. **Public UI**: home, game page, and puzzle page. CSP meta tag, and the ESLint rule banning `dangerouslySetInnerHTML`.
 5. **Admin UI**: game config with build-from-sample, live tester (including the nested-quantifier warning), run management, and bulk delete.
 6. **Deploy**: Pages workflow, keep-alive cron, secret scanning + push protection, Dependabot, and `npm audit` in CI.
-7. **Extras**: player profiles and Grand Prix.
+7. **Extras**: player profiles (`/p/:name`: per-game rank, points and recent runs) and the Grand Prix table on the home page. Player names link to profiles everywhere.
 8. **Later**: player accounts (username + password via Supabase Auth, linking `players.auth_user_id`, and requiring login to submit as that name).

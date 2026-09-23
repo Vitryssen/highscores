@@ -119,3 +119,44 @@ export async function submitRun(
   }
   return json as SubmitSuccess;
 }
+
+export interface GrandPrixRow {
+  player_id: string;
+  player_name: string;
+  points: number;
+  runs: number;
+  wins: number;
+  games: number;
+}
+
+export const fetchGrandPrix = () =>
+  rows<GrandPrixRow>(
+    supabase
+      .from('grand_prix')
+      .select('*')
+      .order('points', { ascending: false })
+      .order('wins', { ascending: false })
+      .limit(100),
+  );
+
+export async function fetchPlayerByName(name: string): Promise<{ id: string; name: string } | null> {
+  // Case-insensitive exact match, with LIKE wildcards escaped.
+  const list = await rows<{ id: string; name: string }>(
+    supabase.from('players').select('id, name').ilike('name', name.replace(/[\\%_]/g, '\\$&')).limit(1),
+  );
+  return list[0] ?? null;
+}
+
+/** Every player's all-time standing in every game, for per-game ranks on profiles. */
+export const fetchAllStandings = () =>
+  rows<Standing>(supabase.from('alltime_standings').select('*').order('points', { ascending: false }).limit(500));
+
+export const fetchPlayerRuns = (playerId: string) =>
+  rows<PuzzleResult>(
+    supabase
+      .from('puzzle_results')
+      .select('*')
+      .eq('player_id', playerId)
+      .order('submitted_at', { ascending: false })
+      .limit(30),
+  );

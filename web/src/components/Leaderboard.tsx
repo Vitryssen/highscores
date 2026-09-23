@@ -2,6 +2,7 @@ import type { Game } from '@shared/types.ts';
 import { formatScore } from '@shared/parser.ts';
 import type { PuzzleResult } from '../lib/api.ts';
 import { formatTime } from '../lib/format.ts';
+import { PlayerLink } from './PlayerLink.tsx';
 
 interface Props {
   game: Game;
@@ -20,7 +21,9 @@ export function Leaderboard({ game, results, loading, empty = 'No runs yet. Be t
           <details>
             <summary>
               <span className="place">{r.place}</span>
-              <span className="player">{r.player_name}</span>
+              <span className="player">
+                <PlayerLink name={r.player_name} />
+              </span>
               <span className="score">{formatScore(game, r.score, r.failed)}</span>
               <span className="points">{r.points ? `+${r.points}` : '0'}</span>
               <span className="time">{formatTime(r.submitted_at)}</span>

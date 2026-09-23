@@ -1,4 +1,5 @@
 import type { Standing } from '../lib/api.ts';
+import { PlayerLink } from './PlayerLink.tsx';
 
 interface Props {
   standings: Standing[] | undefined;
@@ -25,7 +26,9 @@ export function Standings({ standings, loading }: Props) {
           {standings.map((s, i) => (
             <tr key={s.player_id} className={`place-${Math.min(i + 1, 4)}`}>
               <td className="place">{i + 1}</td>
-              <td className="player">{s.player_name}</td>
+              <td className="player">
+                <PlayerLink name={s.player_name} />
+              </td>
               <td className="num points">{s.points}</td>
               <td className="num">{s.wins}</td>
               <td className="num">{s.runs}</td>

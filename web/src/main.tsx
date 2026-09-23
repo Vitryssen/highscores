@@ -11,6 +11,7 @@ import { Home } from './pages/Home.tsx';
 import { GamePage } from './pages/GamePage.tsx';
 import { PuzzlePage } from './pages/PuzzlePage.tsx';
 import { NotFound } from './pages/NotFound.tsx';
+import { PlayerPage } from './pages/PlayerPage.tsx';
 
 // Loaded on demand: public visitors never download the admin code.
 const AdminApp = lazy(() => import('./admin/AdminApp.tsx'));
@@ -27,6 +28,7 @@ const router = createHashRouter([
       { path: '/', element: <Home /> },
       { path: '/g/:slug', element: <GamePage /> },
       { path: '/g/:slug/:puzzle', element: <PuzzlePage /> },
+      { path: '/p/:name', element: <PlayerPage /> },
       {
         path: '/admin',
         element: (
