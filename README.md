@@ -57,6 +57,11 @@ Nothing can prove a pasted result was really played, so the leaderboard runs on 
 - The only thing stored about you is the name you type and the results you paste. Rate limiting keeps only a one-way hash of your IP address, never the address itself.
 - Admin access needs a password **and** an authenticator-app code.
 
+## Planned features
+
+- **Player accounts.** Sign up with an email and password so that only you can submit runs under your name. The name you already play under will carry over to your account.
+- **Game requests.** Ask for a new "-dle" game to be added by pasting a sample result and a link to the game. Requests go to a queue where the admin can approve them and turn them into a new leaderboard, or decline them.
+
 ---
 
 Running your own copy? See [docs/SETUP.md](docs/SETUP.md).
