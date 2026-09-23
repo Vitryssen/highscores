@@ -27,7 +27,7 @@ No account needed: just type your name. It's remembered in your browser, and nam
 | [Krillion](https://krillion.io/) | Depth score (max 700) | Highest |
 | [Pokedle](https://pokedle.net/) | Guesses across all four modes, added up | Fewest |
 
-Each game follows its own daily reset, so "today" always means the same puzzle the game itself is showing. More games can be added by the admin, including games with unusual formats: they paste a sample result and click the puzzle number and the score.
+Each game follows its own daily reset, so "today" always means the same puzzle the game itself is showing. A countdown on every game shows when the next puzzle arrives, and the board rolls over by itself at that moment. More games can be added by the admin, including games with unusual formats: they paste a sample result and click the puzzle number and the score.
 
 Slack and Discord shortcodes like `:large_green_square:` are fine. They're shown as the real emoji.
 
@@ -35,9 +35,10 @@ Slack and Discord shortcodes like `:large_green_square:` are fine. They're shown
 
 - **Every puzzle is a race.** Players are ranked by score, and a tie goes to whoever submitted first.
 - **F1 points** go to the top ten: 25, 18, 15, 12, 10, 8, 6, 4, 2, 1. Failed runs are listed but never score.
-- **All-time table** per game: total points, wins, runs and average place.
-- **Grand Prix**: everyone's points added up across all games.
-- **Player profiles**: your rank and points in each game, plus your recent runs.
+- **All-time table** per game: total points, wins, runs, average place and streak.
+- **Streaks** per game: 🔥 counts the days in a row you've played, and 👑 counts the puzzles in a row you've won. Miss a day and the play streak resets. Lose a puzzle and the win streak resets.
+- **Monthly Grand Prix**: everyone's points across all games, added up for each calendar month. It starts over on the 1st, and the month's leader becomes champion. Earlier months can be browsed, and past champions are listed in the **Hall of fame**.
+- **Player profiles**: your Grand Prix standing and titles, your rank, points, wins and current and best streaks in each game, and every run you've submitted, a page at a time.
 
 ## Fair play
 
