@@ -63,3 +63,38 @@ export function isPuzzleInWindow(game: DateConfig, puzzle: number, at: Date = ne
   const today = currentPuzzle(game, at);
   return puzzle === today || puzzle === today - 1;
 }
+
+/** Milliseconds by which `tz` is ahead of UTC at `at`. */
+function tzOffsetMs(at: Date, tz: string): number {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: tz,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hourCycle: 'h23',
+    })
+      .formatToParts(at)
+      .map((x) => [x.type, x.value]),
+  );
+  const asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second);
+  return asUtc - Math.floor(at.getTime() / 1000) * 1000;
+}
+
+/** The instant when a local wall-clock time in `tz` occurs (DST-safe to the minute). */
+function zonedToUtc(date: string, time: string, tz: string): Date {
+  const [y, m, d] = date.split('-').map(Number);
+  const [h, mi] = time.split(':').map(Number);
+  const wall = Date.UTC(y, m - 1, d, h, mi);
+  let guess = wall - tzOffsetMs(new Date(wall), tz);
+  guess = wall - tzOffsetMs(new Date(guess), tz); // second pass settles DST transitions
+  return new Date(guess);
+}
+
+/** When the next puzzle becomes available. */
+export function nextReset(game: DateConfig, at: Date = new Date()): Date {
+  return zonedToUtc(addDays(gameDay(game, at), 1), game.reset_time, game.timezone);
+}

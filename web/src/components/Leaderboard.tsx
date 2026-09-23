@@ -1,5 +1,5 @@
 import type { Game } from '@shared/types.ts';
-import { formatScore } from '@shared/parser.ts';
+import { formatScore, normalizePaste } from '@shared/parser.ts';
 import type { PuzzleResult } from '../lib/api.ts';
 import { formatTime } from '../lib/format.ts';
 import { PlayerLink } from './PlayerLink.tsx';
@@ -28,7 +28,8 @@ export function Leaderboard({ game, results, loading, empty = 'No runs yet. Be t
               <span className="points">{r.points ? `+${r.points}` : '0'}</span>
               <span className="time">{formatTime(r.submitted_at)}</span>
             </summary>
-            <pre className="paste">{r.raw_paste}</pre>
+            {/* Re-normalized so older pastes pick up newly supported shortcodes. */}
+            <pre className="paste">{normalizePaste(r.raw_paste)}</pre>
           </details>
         </li>
       ))}

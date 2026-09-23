@@ -5,9 +5,11 @@ import { formatScore } from '@shared/parser.ts';
 import { currentPuzzle } from '@shared/puzzleDate.ts';
 import { fetchPuzzle } from '../lib/api.ts';
 import { puzzleLabel } from '../lib/format.ts';
+import { useNow } from '../lib/useNow.ts';
+import { Countdown } from './Countdown.tsx';
 
 export function GameCard({ game }: { game: Game }) {
-  const puzzle = currentPuzzle(game);
+  const puzzle = currentPuzzle(game, useNow(15_000));
   const { data, isLoading } = useQuery({
     queryKey: ['puzzle', game.id, puzzle],
     queryFn: () => fetchPuzzle(game.id, puzzle),
@@ -36,7 +38,10 @@ export function GameCard({ game }: { game: Game }) {
         <p className="muted">No runs today. Press start!</p>
       )}
       <span className="game-card-foot muted">
-        {data?.length ?? 0} {data?.length === 1 ? 'player' : 'players'} today ▶
+        <span>
+          {data?.length ?? 0} {data?.length === 1 ? 'player' : 'players'} ▶
+        </span>
+        <Countdown game={game} compact />
       </span>
     </Link>
   );

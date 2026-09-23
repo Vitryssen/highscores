@@ -15,14 +15,12 @@ export function Home() {
       </section>
       <div className="home-grid">
         <PasteBox games={games} />
-        <section>
-          <h2 className="section-title">Today</h2>
-          <div className="cards">
-            {games.map((g) => (
-              <GameCard key={g.id} game={g} />
-            ))}
-          </div>
-        </section>
+        <h2 className="section-title home-today">Today</h2>
+        <div className="cards">
+          {games.map((g) => (
+            <GameCard key={g.id} game={g} />
+          ))}
+        </div>
       </div>
       <div className="after-grid">
         <GrandPrix />

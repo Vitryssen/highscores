@@ -13,6 +13,7 @@ export interface PuzzleResult {
   submitted_at: string;
   place: number;
   points: number;
+  puzzle_date: string;
 }
 
 export interface Standing {
@@ -63,6 +64,7 @@ export const fetchHistory = (gameId: string) =>
       .select('*')
       .eq('game_id', gameId)
       .eq('place', 1)
+      .eq('failed', false) // a puzzle where everyone failed has no winner
       .order('puzzle', { ascending: false })
       .limit(30),
   );
@@ -121,6 +123,7 @@ export async function submitRun(
 }
 
 export interface GrandPrixRow {
+  month: string; // YYYY-MM-01
   player_id: string;
   player_name: string;
   points: number;
@@ -129,15 +132,33 @@ export interface GrandPrixRow {
   games: number;
 }
 
-export const fetchGrandPrix = () =>
+/** Every month's Grand Prix standings, best first within each month. */
+export const fetchGrandPrixMonths = () =>
   rows<GrandPrixRow>(
     supabase
-      .from('grand_prix')
+      .from('grand_prix_monthly')
       .select('*')
+      .order('month', { ascending: false })
       .order('points', { ascending: false })
       .order('wins', { ascending: false })
-      .limit(100),
+      .order('player_name')
+      .limit(500),
   );
+
+export interface Streak {
+  game_id: string;
+  player_id: string;
+  player_name: string;
+  current_play_streak: number;
+  best_play_streak: number;
+  current_win_streak: number;
+  best_win_streak: number;
+}
+
+export const fetchStreaks = (gameId?: string) => {
+  const q = supabase.from('streaks').select('*').limit(500);
+  return rows<Streak>(gameId ? q.eq('game_id', gameId) : q);
+};
 
 export async function fetchPlayerByName(name: string): Promise<{ id: string; name: string } | null> {
   // Case-insensitive exact match, with LIKE wildcards escaped.
@@ -151,12 +172,18 @@ export async function fetchPlayerByName(name: string): Promise<{ id: string; nam
 export const fetchAllStandings = () =>
   rows<Standing>(supabase.from('alltime_standings').select('*').order('points', { ascending: false }).limit(500));
 
-export const fetchPlayerRuns = (playerId: string) =>
-  rows<PuzzleResult>(
-    supabase
-      .from('puzzle_results')
-      .select('*')
-      .eq('player_id', playerId)
-      .order('submitted_at', { ascending: false })
-      .limit(30),
-  );
+export const RUNS_PAGE_SIZE = 10;
+
+/** One page of a player's runs, newest first, plus the total count for pagination. */
+export async function fetchPlayerRuns(playerId: string, page: number): Promise<{ runs: PuzzleResult[]; total: number }> {
+  const from = page * RUNS_PAGE_SIZE;
+  const { data, error, count } = await supabase
+    .from('puzzle_results')
+    .select('*', { count: 'exact' })
+    .eq('player_id', playerId)
+    .order('submitted_at', { ascending: false })
+    .order('run_id')
+    .range(from, from + RUNS_PAGE_SIZE - 1);
+  if (error) throw new Error(error.message);
+  return { runs: (data ?? []) as PuzzleResult[], total: count ?? 0 };
+}

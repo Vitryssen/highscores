@@ -1,7 +1,17 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { formatScore } from '@shared/parser.ts';
-import { fetchAllStandings, fetchGrandPrix, fetchPlayerByName, fetchPlayerRuns } from '../lib/api.ts';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { formatScore, normalizePaste } from '@shared/parser.ts';
+import {
+  fetchAllStandings,
+  fetchGrandPrixMonths,
+  fetchPlayerByName,
+  fetchPlayerRuns,
+  fetchStreaks,
+  RUNS_PAGE_SIZE,
+} from '../lib/api.ts';
+import { currentMonth, formatMonth } from '../lib/months.ts';
+import { champions } from '../components/GrandPrix.tsx';
 import { formatTime, ordinal, puzzleLabel } from '../lib/format.ts';
 import { useGames } from '../lib/useGames.ts';
 import { NotFound } from './NotFound.tsx';
@@ -11,20 +21,36 @@ export function PlayerPage() {
   const { data: games } = useGames();
   const player = useQuery({ queryKey: ['player', name], queryFn: () => fetchPlayerByName(name) });
   const playerId = player.data?.id;
+  const [page, setPage] = useState(0);
+  const [pageFor, setPageFor] = useState(name);
+  if (pageFor !== name) {
+    // Another player's profile: start from their newest runs.
+    setPageFor(name);
+    setPage(0);
+  }
   const runs = useQuery({
-    queryKey: ['player-runs', playerId],
-    queryFn: () => fetchPlayerRuns(playerId!),
+    queryKey: ['player-runs', playerId, page],
+    queryFn: () => fetchPlayerRuns(playerId!, page),
     enabled: !!playerId,
+    placeholderData: keepPreviousData, // keep the current page visible while the next loads
   });
+  const pages = Math.max(1, Math.ceil((runs.data?.total ?? 0) / RUNS_PAGE_SIZE));
   const standings = useQuery({ queryKey: ['all-standings'], queryFn: fetchAllStandings, enabled: !!playerId });
-  const grandPrix = useQuery({ queryKey: ['grand-prix'], queryFn: fetchGrandPrix, enabled: !!playerId });
+  const grandPrix = useQuery({ queryKey: ['grand-prix'], queryFn: fetchGrandPrixMonths, enabled: !!playerId });
+  const streaks = useQuery({ queryKey: ['streaks', 'all'], queryFn: () => fetchStreaks(), enabled: !!playerId });
 
   if (player.isLoading) return <p className="muted blink">LOADING…</p>;
   if (!player.data) return <NotFound />;
 
   const gameById = new Map(games?.map((g) => [g.id, g]));
-  const gpIndex = grandPrix.data?.findIndex((r) => r.player_id === playerId) ?? -1;
-  const gp = gpIndex >= 0 ? grandPrix.data![gpIndex] : null;
+  const thisMonth = currentMonth();
+  const monthRows = (grandPrix.data ?? []).filter((r) => r.month === thisMonth);
+  const gpIndex = monthRows.findIndex((r) => r.player_id === playerId);
+  const gp = gpIndex >= 0 ? monthRows[gpIndex] : null;
+  const titles = champions(grandPrix.data ?? [], thisMonth).filter((c) => c.player_id === playerId);
+  const streakOf = new Map(
+    (streaks.data ?? []).filter((s) => s.player_id === playerId).map((s) => [s.game_id, s]),
+  );
   const perGame = (standings.data ?? [])
     .filter((s) => s.player_id === playerId && gameById.has(s.game_id))
     .map((s) => ({
@@ -40,8 +66,17 @@ export function PlayerPage() {
         <h1 className="neon">{player.data.name}</h1>
         {gp && (
           <p className="muted">
-            Grand Prix: <strong className="points">{gp.points} pts</strong> · {ordinal(gpIndex + 1)} overall ·{' '}
-            {gp.wins} {gp.wins === 1 ? 'win' : 'wins'} · {gp.runs} runs
+            {formatMonth(thisMonth)} Grand Prix: <strong className="points">{gp.points} pts</strong> ·{' '}
+            {ordinal(gpIndex + 1)} · {gp.wins} {gp.wins === 1 ? 'win' : 'wins'} · {gp.runs} runs
+          </p>
+        )}
+        {titles.length > 0 && (
+          <p className="titles">
+            {titles.map((t) => (
+              <span key={t.month} className="tag">
+                🏆 {formatMonth(t.month)}
+              </span>
+            ))}
           </p>
         )}
       </section>
@@ -60,7 +95,13 @@ export function PlayerPage() {
                     <th scope="col" className="num">Rank</th>
                     <th scope="col" className="num">Pts</th>
                     <th scope="col" className="num">Wins</th>
-                    <th scope="col" className="num">Runs</th>
+                    <th scope="col" className="num hide-sm">Runs</th>
+                    <th scope="col" className="num" title="Puzzles played in a row: current / best">
+                      🔥<span className="hide-sm"> Streak</span>
+                    </th>
+                    <th scope="col" className="num" title="Wins in a row: current / best">
+                      👑<span className="hide-sm"> Wins</span>
+                    </th>
                     <th scope="col" className="num hide-sm">Avg place</th>
                   </tr>
                 </thead>
@@ -73,7 +114,15 @@ export function PlayerPage() {
                       <td className="num place">{s.rank}</td>
                       <td className="num points">{s.points}</td>
                       <td className="num">{s.wins}</td>
-                      <td className="num">{s.runs}</td>
+                      <td className="num hide-sm">{s.runs}</td>
+                      <td className="num">
+                        {streakOf.get(s.game_id)?.current_play_streak ?? 0}
+                        <span className="muted"> / {streakOf.get(s.game_id)?.best_play_streak ?? 0}</span>
+                      </td>
+                      <td className="num">
+                        {streakOf.get(s.game_id)?.current_win_streak ?? 0}
+                        <span className="muted"> / {streakOf.get(s.game_id)?.best_win_streak ?? 0}</span>
+                      </td>
                       <td className="num hide-sm">{s.avg_place}</td>
                     </tr>
                   ))}
@@ -84,12 +133,27 @@ export function PlayerPage() {
         </section>
 
         <section className="panel">
-          <h2 className="panel-title">Recent runs</h2>
-          {!runs.data?.length ? (
+          <div className="panel-head">
+            <h2 className="panel-title">Runs{runs.data ? ` · ${runs.data.total}` : ''}</h2>
+            {pages > 1 && (
+              <nav className="toggle pager" aria-label="Runs pages">
+                <button type="button" onClick={() => setPage((p) => p - 1)} disabled={page === 0}>
+                  ◀ Newer
+                </button>
+                <span className="muted small" aria-live="polite">
+                  {page + 1} / {pages}
+                </span>
+                <button type="button" onClick={() => setPage((p) => p + 1)} disabled={page >= pages - 1}>
+                  Older ▶
+                </button>
+              </nav>
+            )}
+          </div>
+          {!runs.data?.runs.length ? (
             <p className="muted">{runs.isLoading ? 'LOADING…' : 'No runs yet.'}</p>
           ) : (
-            <ol className="board">
-              {runs.data.map((r) => {
+            <ol className={`board${runs.isPlaceholderData ? ' loading' : ''}`}>
+              {runs.data.runs.map((r) => {
                 const g = gameById.get(r.game_id);
                 if (!g) return null;
                 return (
@@ -106,7 +170,7 @@ export function PlayerPage() {
                         <span className="points">{r.points ? `+${r.points}` : '0'}</span>
                         <span className="time">{formatTime(r.submitted_at)}</span>
                       </summary>
-                      <pre className="paste">{r.raw_paste}</pre>
+                      <pre className="paste">{normalizePaste(r.raw_paste)}</pre>
                     </details>
                   </li>
                 );

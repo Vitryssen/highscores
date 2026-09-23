@@ -3,7 +3,9 @@ import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { formatScore } from '@shared/parser.ts';
 import { currentPuzzle } from '@shared/puzzleDate.ts';
-import { fetchHistory, fetchPuzzle, fetchStandings } from '../lib/api.ts';
+import { fetchHistory, fetchPuzzle, fetchStandings, fetchStreaks } from '../lib/api.ts';
+import { useNow } from '../lib/useNow.ts';
+import { Countdown } from '../components/Countdown.tsx';
 import { puzzleLabel } from '../lib/format.ts';
 import { useGames } from '../lib/useGames.ts';
 import { PasteBox } from '../components/PasteBox.tsx';
@@ -15,7 +17,8 @@ export function GamePage() {
   const { slug } = useParams();
   const { data: games, isLoading } = useGames();
   const game = games?.find((g) => g.slug === slug);
-  const today = game ? currentPuzzle(game) : 0;
+  const now = useNow(15_000); // rolls the board over when the puzzle resets
+  const today = game ? currentPuzzle(game, now) : 0;
   const [offset, setOffset] = useState(0); // 0 = today, 1 = yesterday
   const puzzle = today - offset;
 
@@ -27,6 +30,11 @@ export function GamePage() {
   const standings = useQuery({
     queryKey: ['standings', game?.id],
     queryFn: () => fetchStandings(game!.id),
+    enabled: !!game,
+  });
+  const streaks = useQuery({
+    queryKey: ['streaks', game?.id],
+    queryFn: () => fetchStreaks(game!.id),
     enabled: !!game,
   });
   const history = useQuery({
@@ -42,6 +50,7 @@ export function GamePage() {
     <>
       <section className="hero">
         <h1 className="neon">{game.name}</h1>
+        <Countdown game={game} />
         {game.url && (
           <a href={game.url} target="_blank" rel="noopener noreferrer" className="muted">
             Play {game.name} ↗
@@ -71,7 +80,7 @@ export function GamePage() {
 
         <section className="panel">
           <h2 className="panel-title">All-time</h2>
-          <Standings standings={standings.data} loading={standings.isLoading} />
+          <Standings standings={standings.data} streaks={streaks.data} loading={standings.isLoading} />
         </section>
 
         <section className="panel">
