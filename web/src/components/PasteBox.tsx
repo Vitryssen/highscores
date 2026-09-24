@@ -58,14 +58,7 @@ export function PasteBox({ games, game: fixedGame }: Props) {
 
   return (
     <form className="panel paste-box" onSubmit={onSubmit}>
-      <div className="panel-head">
-        <h2 className="panel-title">{fixedGame ? 'Submit your run' : 'Insert result'}</h2>
-        {!fixedGame && (
-          <Link to="/request" state={{ paste: candidates.length ? '' : paste }} className="small">
-            Missing a game? Request it ▶
-          </Link>
-        )}
-      </div>
+      <h2 className="panel-title">{fixedGame ? 'Submit your run' : 'Insert result'}</h2>
 
       <label htmlFor={`${ids}-name`}>Player</label>
       <input
@@ -151,6 +144,11 @@ export function PasteBox({ games, game: fixedGame }: Props) {
           {success.failed ? 'Run saved. ' : `${ordinal(success.place)} place! +${success.points} pts. `}
           <Link to={`/g/${success.game.slug}`}>See the {success.game.name} board →</Link>
         </p>
+      )}
+      {!fixedGame && (
+        <Link to="/request" state={{ paste: candidates.length ? '' : paste }} className="small request-link">
+          Missing a game? Request it ▶
+        </Link>
       )}
     </form>
   );
