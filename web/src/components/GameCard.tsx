@@ -17,9 +17,15 @@ export function GameCard({ game }: { game: Game }) {
   const podium = data?.slice(0, 3) ?? [];
 
   return (
-    <Link to={`/g/${game.slug}`} className="panel game-card">
+    // The title link stretches over the whole card, so the Play link can sit inside it without
+    // nesting one link in another.
+    <div className="panel game-card">
       <div className="game-card-head">
-        <h3>{game.name}</h3>
+        <h3>
+          <Link to={`/g/${game.slug}`} className="card-link">
+            {game.name}
+          </Link>
+        </h3>
         <span className="tag">{puzzleLabel(game, puzzle)}</span>
       </div>
       {isLoading ? (
@@ -41,8 +47,13 @@ export function GameCard({ game }: { game: Game }) {
         <span>
           {data?.length ?? 0} {data?.length === 1 ? 'player' : 'players'} ▶
         </span>
+        {game.url && (
+          <a href={game.url} target="_blank" rel="noopener noreferrer" className="play-link">
+            Play ↗
+          </a>
+        )}
         <Countdown game={game} compact />
       </span>
-    </Link>
+    </div>
   );
 }

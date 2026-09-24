@@ -382,6 +382,7 @@ textarea {
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
 }
 .game-card {
+  position: relative;
   display: grid;
   gap: 12px;
   color: var(--text);
@@ -390,7 +391,6 @@ textarea {
     transform 0.15s;
 }
 .game-card:hover {
-  text-decoration: none;
   border-color: var(--pink);
   transform: translateY(-2px);
 }
@@ -988,4 +988,38 @@ code,
 }
 .request-example dd {
   margin: 0 0 6px;
+}
+
+/* Links out to the real game */
+
+.card-link {
+  color: inherit;
+}
+.card-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.card-link:hover,
+.card-link:focus-visible {
+  text-decoration: none;
+}
+.game-card:has(.card-link:focus-visible) {
+  border-color: var(--pink);
+}
+.play-link {
+  position: relative; /* above the card's stretched link */
+  color: var(--cyan);
+  white-space: nowrap;
+}
+.hero .play-link {
+  padding: 8px 14px;
+  border: 2px solid var(--cyan);
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+.hero .play-link:hover {
+  text-decoration: none;
+  color: var(--bg);
+  background: var(--cyan);
 }

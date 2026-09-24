@@ -28,7 +28,7 @@ No account needed: just type your name. It's remembered in your browser, and nam
 | [Krillion](https://krillion.io/) | Depth score (max 700) | Highest |
 | [Pokedle](https://pokedle.net/) | Guesses across all four modes, added up | Fewest |
 
-Each game follows its own daily reset, so "today" always means the same puzzle the game itself is showing. A countdown on every game shows when the next puzzle arrives, and the board rolls over by itself at that moment. More games can be added by the admin, including games with unusual formats: they paste a sample result and click the puzzle number and the score.
+Each game follows its own daily reset, so "today" always means the same puzzle the game itself is showing. A countdown on every game shows when the next puzzle arrives, and the board rolls over by itself at that moment. A **Play ↗** link on every game takes you to the game itself. More games can be added by the admin, including games with unusual formats: they paste a sample result and click the puzzle number and the score.
 
 Slack and Discord shortcodes like `:large_green_square:` are fine. They're shown as the real emoji.
 

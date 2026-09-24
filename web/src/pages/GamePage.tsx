@@ -52,7 +52,7 @@ export function GamePage() {
         <h1 className="neon">{game.name}</h1>
         <Countdown game={game} />
         {game.url && (
-          <a href={game.url} target="_blank" rel="noopener noreferrer" className="muted">
+          <a href={game.url} target="_blank" rel="noopener noreferrer" className="play-link">
             Play {game.name} ↗
           </a>
         )}
