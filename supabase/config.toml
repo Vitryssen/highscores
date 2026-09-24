@@ -420,3 +420,6 @@ enabled = true
 # tokens itself (only needed for backfill overrides).
 [functions.submit-run]
 verify_jwt = false
+
+[functions.request-game]
+verify_jwt = false

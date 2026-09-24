@@ -1,27 +1,14 @@
 // POST a pasted result. Parses and validates it with the shared parser, then stores the run.
 // This is the only way anonymous users can write data.
 
-import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
+import { ALLOWED_ORIGINS, clientKey, corsHeaders, db, GAME_COLUMNS, json, readJson } from '../_shared/http.ts';
 import { detectGames, normalizeName, parsePaste, validateName } from '../_shared/parser.ts';
 import { isPuzzleInWindow } from '../_shared/puzzleDate.ts';
 import { type Game, MAX_PASTE_LENGTH } from '../_shared/types.ts';
 
-const ALLOWED_ORIGINS = (
-  Deno.env.get('ALLOWED_ORIGINS') ?? 'https://vitryssen.github.io,http://localhost:5173'
-)
-  .split(',')
-  .map((o) => o.trim())
-  .filter(Boolean);
-
-const MAX_BODY_BYTES = 16_384;
 const RATE_WINDOW_SECONDS = 600;
 const SUBMIT_LIMIT = 10; // per IP per window
 const BACKFILL_LIMIT = 100; // admin backfills, counted before the token is verified
-
-const GAME_COLUMNS =
-  'id, slug, name, url, score_type, higher_is_better, max_guesses, tiers, min_score, max_score, ' +
-  'parse_regex, regex_flags, score_regex, score_count, puzzle_source, anchor_puzzle, anchor_date, ' +
-  'reset_time, timezone, sample_pastes, active, created_at';
 
 type ErrorCode =
   | 'bad_request'
@@ -42,48 +29,6 @@ interface SubmitBody {
   player_name: string;
   paste: string;
   override?: { puzzle?: number; submitted_at?: string };
-}
-
-const db: SupabaseClient = createClient(
-  Deno.env.get('SUPABASE_URL')!,
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-  { auth: { persistSession: false, autoRefreshToken: false } },
-);
-
-function corsHeaders(origin: string | null): Record<string, string> {
-  if (!origin || !ALLOWED_ORIGINS.includes(origin)) return {};
-  return {
-    'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info',
-    'Access-Control-Max-Age': '86400',
-    Vary: 'Origin',
-  };
-}
-
-function json(status: number, body: unknown, cors: Record<string, string>): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...cors, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-  });
-}
-
-const hmacKey = crypto.subtle.importKey(
-  'raw',
-  new TextEncoder().encode(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!),
-  { name: 'HMAC', hash: 'SHA-256' },
-  false,
-  ['sign'],
-);
-
-/** Keyed hash of the client IP, so rate_limits never stores raw addresses. */
-async function clientKey(req: Request): Promise<string> {
-  const ip =
-    req.headers.get('cf-connecting-ip') ??
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    'unknown';
-  const mac = await crypto.subtle.sign('HMAC', await hmacKey, new TextEncoder().encode(ip));
-  return [...new Uint8Array(mac).slice(0, 16)].map((x) => x.toString(16).padStart(2, '0')).join('');
 }
 
 function parseBody(raw: unknown): SubmitBody | null {
@@ -145,18 +90,9 @@ Deno.serve(async (req) => {
   if (req.method !== 'POST') return fail(405, 'bad_request', 'Use POST.');
 
   try {
-    if (Number(req.headers.get('content-length') ?? 0) > MAX_BODY_BYTES) {
-      return fail(413, 'too_large', 'Request is too large.');
-    }
-    const text = await req.text();
-    if (text.length > MAX_BODY_BYTES) return fail(413, 'too_large', 'Request is too large.');
-
-    let body: SubmitBody | null;
-    try {
-      body = parseBody(JSON.parse(text));
-    } catch {
-      body = null;
-    }
+    const raw = await readJson(req);
+    if (raw.tooLarge) return fail(413, 'too_large', 'Request is too large.');
+    const body = parseBody(raw.value);
     if (!body) return fail(400, 'bad_request', 'Invalid request.');
     if (body.paste.length > MAX_PASTE_LENGTH * 2) return fail(413, 'too_large', 'Paste is too long.');
 
