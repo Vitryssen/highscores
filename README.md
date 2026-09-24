@@ -32,6 +32,43 @@ Each game follows its own daily reset, so "today" always means the same puzzle t
 
 **Missing a game?** [Request it](https://vitryssen.github.io/highscores/#/request) with a link and a result you shared. If you paste a result the site doesn't recognise, it offers to request that game for you. Requests are listed publicly as wanted, added or declined. Asking for a game that's already been requested adds a +1 to it, so the admin can see what people want most.
 
+For example, a request for Connections:
+
+| Field | Value |
+| --- | --- |
+| Game | Connections |
+| Link | https://www.nytimes.com/games/connections |
+| Note | Fewest mistakes wins: every mixed row is one. |
+
+```text
+Connections
+Puzzle #1201
+🟨🟪🟦🟦
+🟦🟩🟪🟦
+🟩🟩🟨🟩
+🟩🟩🟩🟩
+🟨🟨🟨🟨
+🟪🟪🟪🟪
+🟦🟦🟦🟦
+```
+
+And one for LoLdle:
+
+| Field | Value |
+| --- | --- |
+| Game | LoLdle |
+| Link | https://loldle.net |
+| Note | Add up the guesses from all modes. Fewest wins. |
+
+```text
+I've completed all the modes of #LoLdle #1540 today:
+❓ Classic: 11
+💬 Quote: 2
+😀 Emoji: 54
+
+https://loldle.net
+```
+
 Slack and Discord shortcodes like `:large_green_square:` are fine. They're shown as the real emoji.
 
 ## Scoring
