@@ -52,4 +52,5 @@ Database migrations and the Edge Function are deployed manually:
 ```sh
 npx supabase db push
 npx supabase functions deploy submit-run --use-api
+npx supabase functions deploy request-game --use-api
 ```

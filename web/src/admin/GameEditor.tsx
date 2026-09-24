@@ -120,13 +120,25 @@ function toRow(f: Form): GameRow {
 
 const TIMEZONES = ['UTC', 'Etc/GMT-2', ...Intl.supportedValuesOf('timeZone')];
 
+export interface Prefill {
+  name: string;
+  url: string;
+  sample: string;
+}
+
 interface Props {
   game: Game | null;
+  /** Starting values for a new game, e.g. from a game request. */
+  prefill?: Prefill;
   onDone: (saved?: Game) => void;
 }
 
-export function GameEditor({ game, onDone }: Props) {
-  const [form, setForm] = useState<Form>(() => toForm(game));
+export function GameEditor({ game, prefill, onDone }: Props) {
+  const [form, setForm] = useState<Form>(() =>
+    prefill
+      ? { ...toForm(null), name: prefill.name, slug: slugify(prefill.name), url: prefill.url, sample_pastes: [prefill.sample] }
+      : toForm(game),
+  );
   const [slugEdited, setSlugEdited] = useState(!!game);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -179,7 +191,7 @@ export function GameEditor({ game, onDone }: Props) {
   return (
     <form className="panel stack editor" onSubmit={onSubmit}>
       <div className="panel-head">
-        <h2 className="panel-title">{game ? `Edit ${game.name}` : 'New game'}</h2>
+        <h2 className="panel-title">{game ? `Edit ${game.name}` : prefill ? `New game from request: ${prefill.name}` : 'New game'}</h2>
         <button type="button" className="btn btn-ghost" onClick={() => onDone()}>
           Cancel
         </button>

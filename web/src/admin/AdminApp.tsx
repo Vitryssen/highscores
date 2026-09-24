@@ -6,8 +6,10 @@ import { GamesAdmin } from './GamesAdmin.tsx';
 import { RunsAdmin } from './RunsAdmin.tsx';
 import { PlayersAdmin } from './PlayersAdmin.tsx';
 import { Backfill } from './Backfill.tsx';
+import { RequestsAdmin } from './RequestsAdmin.tsx';
+import { fetchRequestsAdmin } from './adminApi.ts';
 
-type Tab = 'games' | 'runs' | 'players' | 'backfill';
+type Tab = 'games' | 'requests' | 'runs' | 'players' | 'backfill';
 
 export default function AdminApp() {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
@@ -192,8 +194,11 @@ function Mfa({ factors }: { factors: Factor[] }) {
 
 function Dashboard({ email }: { email: string }) {
   const [tab, setTab] = useState<Tab>('games');
+  const requests = useQuery({ queryKey: ['admin-requests'], queryFn: fetchRequestsAdmin });
+  const pending = requests.data?.filter((r) => r.status === 'pending').length ?? 0;
   const tabs: [Tab, string][] = [
     ['games', 'Games'],
+    ['requests', pending ? `Requests (${pending})` : 'Requests'],
     ['runs', 'Runs'],
     ['players', 'Players'],
     ['backfill', 'Backfill'],
@@ -215,6 +220,7 @@ function Dashboard({ email }: { email: string }) {
         ))}
       </nav>
       {tab === 'games' && <GamesAdmin />}
+      {tab === 'requests' && <RequestsAdmin />}
       {tab === 'runs' && <RunsAdmin />}
       {tab === 'players' && <PlayersAdmin />}
       {tab === 'backfill' && <Backfill />}

@@ -885,3 +885,27 @@ code,
   background: var(--line);
   color: var(--muted);
 }
+.request-card {
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.request-card .panel-head {
+  margin-bottom: 0;
+}
+.request-card h3 {
+  font-size: 15px;
+  margin: 0;
+}
+.request-card p {
+  margin: 0;
+}
+.request-url {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.request-sample {
+  padding: 8px 10px;
+  background: #05040c;
+  border-radius: var(--radius);
+}

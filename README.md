@@ -30,6 +30,8 @@ No account needed: just type your name. It's remembered in your browser, and nam
 
 Each game follows its own daily reset, so "today" always means the same puzzle the game itself is showing. A countdown on every game shows when the next puzzle arrives, and the board rolls over by itself at that moment. More games can be added by the admin, including games with unusual formats: they paste a sample result and click the puzzle number and the score.
 
+**Missing a game?** [Request it](https://vitryssen.github.io/highscores/#/request) with a link and a result you shared. If you paste a result the site doesn't recognise, it offers to request that game for you. Requests are listed publicly as wanted, added or declined. Asking for a game that's already been requested adds a +1 to it, so the admin can see what people want most.
+
 Slack and Discord shortcodes like `:large_green_square:` are fine. They're shown as the real emoji.
 
 ## Scoring
@@ -54,13 +56,12 @@ Nothing can prove a pasted result was really played, so the leaderboard runs on 
 ## Privacy and security
 
 - No sign-up, no tracking, no ads, and no third-party requests: fonts are served by the site itself.
-- The only thing stored about you is the name you type and the results you paste. Rate limiting keeps only a one-way hash of your IP address, never the address itself.
+- The only thing stored about you is the name you type and the results you paste. Rate limiting and +1s on game requests keep only a one-way hash of your IP address, never the address itself, and a request's +1 hashes are deleted once it's resolved. Links and sample results in requests are only shown to the admin.
 - Admin access needs a password **and** an authenticator-app code.
 
 ## Planned features
 
 - **Player accounts.** Sign up with an email and password so that only you can submit runs under your name. The name you already play under will carry over to your account.
-- **Game requests.** Ask for a new "-dle" game to be added by pasting a sample result and a link to the game. Requests go to a queue where the admin can approve them and turn them into a new leaderboard, or decline them.
 
 ---
 
