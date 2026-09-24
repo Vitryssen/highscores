@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import type { Game } from '@shared/types.ts';
-import type { GrandPrixGameRow, GrandPrixRow } from './api.ts';
+import type { GrandPrixGameRow, GrandPrixRow, PuzzleResult } from './api.ts';
 import { load, save } from './storage.ts';
 
 const GAMES_KEY = 'highscores:gp-games';
+const MODE_KEY = 'highscores:gp-mode';
+
+export type GrandPrixMode = 'today' | 'month';
 
 /** Games the Grand Prix totals until a viewer picks their own. */
 export const DEFAULT_GP_GAMES = ['wordle', 'ordel', 'rngdle'];
@@ -28,6 +31,31 @@ export function useGrandPrixGames(): [string[], (slugs: string[]) => void] {
       save(GAMES_KEY, JSON.stringify(next));
     },
   ];
+}
+
+/** Whether the Grand Prix shows today's puzzles or a month, remembered in this browser. */
+export function useGrandPrixMode(): [GrandPrixMode, (mode: GrandPrixMode) => void] {
+  const [mode, setMode] = useState<GrandPrixMode>(() => (load(MODE_KEY) === 'today' ? 'today' : 'month'));
+  return [
+    mode,
+    (next) => {
+      setMode(next);
+      save(MODE_KEY, next);
+    },
+  ];
+}
+
+/** Today's results as per-game rows, so they total like a month. */
+export function todayRows(results: PuzzleResult[]): GrandPrixGameRow[] {
+  return results.map((r) => ({
+    month: 'today',
+    game_id: r.game_id,
+    player_id: r.player_id,
+    player_name: r.player_name,
+    points: r.points,
+    runs: 1,
+    wins: r.place === 1 && !r.failed ? 1 : 0,
+  }));
 }
 
 /** Totals per month and player over the chosen games, best first within each month, newest month first. */

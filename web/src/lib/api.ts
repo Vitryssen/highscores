@@ -182,6 +182,16 @@ export const fetchGrandPrixByGame = () =>
     supabase.from('grand_prix_game_monthly').select('*').order('month', { ascending: false }).limit(1000),
   );
 
+/** Results for the given puzzles, one per game: today's Grand Prix. */
+export const fetchPuzzleResults = (puzzles: { game_id: string; puzzle: number }[]) =>
+  rows<PuzzleResult>(
+    supabase
+      .from('puzzle_results')
+      .select('*')
+      .or(puzzles.map((p) => `and(game_id.eq.${p.game_id},puzzle.eq.${p.puzzle})`).join(','))
+      .limit(1000),
+  );
+
 export interface Streak {
   game_id: string;
   player_id: string;
