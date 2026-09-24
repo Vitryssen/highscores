@@ -6,10 +6,8 @@ import { MAX_NAME_LENGTH, MAX_PASTE_LENGTH } from '@shared/types.ts';
 import { detectGames, formatScore, normalizePaste, parsePaste, validateName } from '@shared/parser.ts';
 import { isPuzzleInWindow } from '@shared/puzzleDate.ts';
 import { fetchPlayerNames, submitRun, SubmitError, type SubmitSuccess } from '../lib/api.ts';
-import { load, save } from '../lib/storage.ts';
+import { load, NAME_KEY, save } from '../lib/storage.ts';
 import { ordinal, puzzleLabel } from '../lib/format.ts';
-
-const NAME_KEY = 'highscores:name';
 
 interface Props {
   games: Game[];
@@ -100,7 +98,12 @@ export function PasteBox({ games, game: fixedGame }: Props) {
       />
 
       {!fixedGame && trimmed && candidates.length === 0 && (
-        <p className="msg error">That doesn't look like a result for any game here.</p>
+        <p className="msg error">
+          That doesn't look like a result for any game here.{' '}
+          <Link to="/request" state={{ paste }}>
+            Request this game?
+          </Link>
+        </p>
       )}
       {candidates.length > 1 && (
         <fieldset className="choose">

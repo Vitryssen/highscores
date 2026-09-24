@@ -85,24 +85,17 @@ export class SubmitError extends Error {
     message: string,
     readonly code: string,
     readonly candidates: { id: string; slug: string; name: string }[] = [],
+    readonly game?: { slug: string; name: string },
   ) {
     super(message);
   }
 }
 
-export async function submitRun(
-  body: {
-    game_id?: string;
-    player_name: string;
-    paste: string;
-    override?: { puzzle?: number; submitted_at?: string };
-  },
-  /** Admin access token, required for backfill overrides. */
-  accessToken?: string,
-): Promise<SubmitSuccess> {
+/** POST to an Edge Function. Errors come back as SubmitError with the function's error code. */
+async function callFunction<T>(name: string, body: unknown, accessToken?: string): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(`${SUPABASE_URL}/functions/v1/submit-run`, {
+    res = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -117,10 +110,59 @@ export async function submitRun(
   const json = await res.json().catch(() => null);
   if (!res.ok) {
     const err = json?.error;
-    throw new SubmitError(err?.message ?? 'Something went wrong.', err?.code ?? 'server_error', err?.candidates);
+    throw new SubmitError(err?.message ?? 'Something went wrong.', err?.code ?? 'server_error', err?.candidates, err?.game);
   }
-  return json as SubmitSuccess;
+  return json as T;
 }
+
+export const submitRun = (
+  body: {
+    game_id?: string;
+    player_name: string;
+    paste: string;
+    override?: { puzzle?: number; submitted_at?: string };
+  },
+  /** Admin access token, required for backfill overrides. */
+  accessToken?: string,
+) => callFunction<SubmitSuccess>('submit-run', body, accessToken);
+
+export type RequestStatus = 'pending' | 'added' | 'declined';
+
+export interface GameRequest {
+  id: string;
+  name: string;
+  requested_by: string | null;
+  status: RequestStatus;
+  decline_reason: string | null;
+  game_id: string | null;
+  votes: number;
+  created_at: string;
+  resolved_at: string | null;
+}
+
+export const REQUEST_COLUMNS = 'id, name, requested_by, status, decline_reason, game_id, votes, created_at, resolved_at';
+
+/** Pending requests first (most wanted on top), then recently resolved ones. */
+export const fetchGameRequests = async () =>
+  (
+    await rows<GameRequest>(
+      supabase.from('game_requests').select(REQUEST_COLUMNS).order('created_at', { ascending: false }).limit(200),
+    )
+  ).sort(
+    (a, b) =>
+      Number(b.status === 'pending') - Number(a.status === 'pending') ||
+      (a.status === 'pending' ? b.votes - a.votes : 0) ||
+      (b.resolved_at ?? b.created_at).localeCompare(a.resolved_at ?? a.created_at),
+  );
+
+export interface RequestSuccess {
+  request_id: string;
+  name: string;
+  outcome: 'created' | 'voted' | 'already_voted';
+}
+
+export const requestGame = (body: { name: string; url: string; paste: string; requested_by?: string; note?: string }) =>
+  callFunction<RequestSuccess>('request-game', body);
 
 export interface GrandPrixRow {
   month: string; // YYYY-MM-01

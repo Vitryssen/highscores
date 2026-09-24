@@ -13,7 +13,7 @@ export function Layout() {
       </main>
       <footer className="site-footer muted">
         One run per player per puzzle · F1 points: 25-18-15-12-10-8-6-4-2-1 ·{' '}
-        <Link to="/admin">Admin</Link>
+        <Link to="/request">Request a game</Link> · <Link to="/admin">Admin</Link>
       </footer>
     </>
   );

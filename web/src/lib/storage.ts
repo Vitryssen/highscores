@@ -1,6 +1,8 @@
 // localStorage can be missing or throw (private mode, blocked storage), so every access is
 // guarded. It only holds conveniences like the last-used name.
 
+export const NAME_KEY = 'highscores:name';
+
 export function load(key: string): string | null {
   try {
     return window.localStorage.getItem(key);
