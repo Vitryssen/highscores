@@ -23,7 +23,7 @@ export function Home() {
         </div>
       </div>
       <div className="after-grid">
-        <GrandPrix />
+        <GrandPrix games={games} />
       </div>
     </>
   );

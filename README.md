@@ -40,7 +40,7 @@ Slack and Discord shortcodes like `:large_green_square:` are fine. They're shown
 - **F1 points** go to the top ten: 25, 18, 15, 12, 10, 8, 6, 4, 2, 1. Failed runs are listed but never score.
 - **All-time table** per game: total points, wins, runs, average place and streak.
 - **Streaks** per game: 🔥 counts the days in a row you've played, and 👑 counts the puzzles in a row you've won. Miss a day and the play streak resets. Lose a puzzle and the win streak resets.
-- **Monthly Grand Prix**: everyone's points across all games, added up for each calendar month. It starts over on the 1st, and the month's leader becomes champion. Earlier months can be browsed, and past champions are listed in the **Hall of fame**.
+- **Monthly Grand Prix**: everyone's points added up for each calendar month, across the games you pick (Wordle, Ordel and RNGdle by default; your choice is remembered in your browser, and profiles use it too). It starts over on the 1st, and the month's leader becomes champion. Earlier months can be browsed, and past champions are listed in the **Hall of fame**.
 - **Player profiles**: your Grand Prix standing and titles, your rank, points, wins and current and best streaks in each game, and every run you've submitted, a page at a time.
 
 ## Fair play

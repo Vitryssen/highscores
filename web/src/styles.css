@@ -909,3 +909,12 @@ code,
   background: #05040c;
   border-radius: var(--radius);
 }
+.gp-games {
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.gp-games .link-btn {
+  color: var(--cyan);
+  border: 0;
+  padding: 8px 4px;
+}

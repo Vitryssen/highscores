@@ -1,17 +1,21 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchGrandPrixMonths, type GrandPrixRow } from '../lib/api.ts';
+import type { Game } from '@shared/types.ts';
+import { fetchGrandPrixByGame } from '../lib/api.ts';
+import { champions, DEFAULT_GP_GAMES, totalGrandPrix, useGrandPrixGames } from '../lib/grandPrix.ts';
 import { currentMonth, formatMonth } from '../lib/months.ts';
 import { PlayerLink } from './PlayerLink.tsx';
 
-/** Champion of each finished month: most points, then most wins (rows arrive in that order). */
-export function champions(rows: GrandPrixRow[], thisMonth: string): GrandPrixRow[] {
-  const seen = new Set<string>();
-  return rows.filter((r) => r.month < thisMonth && !seen.has(r.month) && seen.add(r.month));
-}
-
-export function GrandPrix() {
-  const { data, isLoading } = useQuery({ queryKey: ['grand-prix'], queryFn: fetchGrandPrixMonths });
+export function GrandPrix({ games }: { games: Game[] }) {
+  const byGame = useQuery({ queryKey: ['grand-prix'], queryFn: fetchGrandPrixByGame });
+  const [slugs, setSlugs] = useGrandPrixGames();
+  const data = byGame.data && totalGrandPrix(byGame.data, games, slugs);
+  const isLoading = byGame.isLoading;
+  const isDefault = [...slugs].sort().join() === [...DEFAULT_GP_GAMES].sort().join();
+  const toggle = (slug: string) => {
+    if (!slugs.includes(slug)) setSlugs([...slugs, slug]);
+    else if (slugs.length > 1) setSlugs(slugs.filter((s) => s !== slug)); // keep at least one game
+  };
   const thisMonth = currentMonth();
   const months = [...new Set([thisMonth, ...(data ?? []).map((r) => r.month)])].sort().reverse();
   const [month, setMonth] = useState(thisMonth);
@@ -31,6 +35,26 @@ export function GrandPrix() {
             Next ▶
           </button>
         </div>
+      </div>
+      <div className="toggle gp-games" role="group" aria-label="Games in the Grand Prix">
+        {games.map((g) => {
+          const on = slugs.includes(g.slug);
+          return (
+            <button
+              key={g.id}
+              type="button"
+              aria-pressed={on}
+              onClick={() => toggle(g.slug)}
+            >
+              {g.name}
+            </button>
+          );
+        })}
+        {!isDefault && (
+          <button type="button" className="link-btn" onClick={() => setSlugs(DEFAULT_GP_GAMES)}>
+            Reset
+          </button>
+        )}
       </div>
       {isLoading ? (
         <p className="muted blink">LOADING…</p>

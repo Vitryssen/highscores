@@ -174,17 +174,12 @@ export interface GrandPrixRow {
   games: number;
 }
 
-/** Every month's Grand Prix standings, best first within each month. */
-export const fetchGrandPrixMonths = () =>
-  rows<GrandPrixRow>(
-    supabase
-      .from('grand_prix_monthly')
-      .select('*')
-      .order('month', { ascending: false })
-      .order('points', { ascending: false })
-      .order('wins', { ascending: false })
-      .order('player_name')
-      .limit(500),
+export type GrandPrixGameRow = Omit<GrandPrixRow, 'games'> & { game_id: string };
+
+/** Every month's Grand Prix points per game and player, for totalling any set of games. */
+export const fetchGrandPrixByGame = () =>
+  rows<GrandPrixGameRow>(
+    supabase.from('grand_prix_game_monthly').select('*').order('month', { ascending: false }).limit(1000),
   );
 
 export interface Streak {

@@ -4,14 +4,14 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { formatScore, normalizePaste } from '@shared/parser.ts';
 import {
   fetchAllStandings,
-  fetchGrandPrixMonths,
+  fetchGrandPrixByGame,
   fetchPlayerByName,
   fetchPlayerRuns,
   fetchStreaks,
   RUNS_PAGE_SIZE,
 } from '../lib/api.ts';
 import { currentMonth, formatMonth } from '../lib/months.ts';
-import { champions } from '../components/GrandPrix.tsx';
+import { champions, totalGrandPrix, useGrandPrixGames } from '../lib/grandPrix.ts';
 import { formatTime, ordinal, puzzleLabel } from '../lib/format.ts';
 import { useGames } from '../lib/useGames.ts';
 import { NotFound } from './NotFound.tsx';
@@ -36,7 +36,8 @@ export function PlayerPage() {
   });
   const pages = Math.max(1, Math.ceil((runs.data?.total ?? 0) / RUNS_PAGE_SIZE));
   const standings = useQuery({ queryKey: ['all-standings'], queryFn: fetchAllStandings, enabled: !!playerId });
-  const grandPrix = useQuery({ queryKey: ['grand-prix'], queryFn: fetchGrandPrixMonths, enabled: !!playerId });
+  const grandPrix = useQuery({ queryKey: ['grand-prix'], queryFn: fetchGrandPrixByGame, enabled: !!playerId });
+  const [gpSlugs] = useGrandPrixGames();
   const streaks = useQuery({ queryKey: ['streaks', 'all'], queryFn: () => fetchStreaks(), enabled: !!playerId });
 
   if (player.isLoading) return <p className="muted blink">LOADING…</p>;
@@ -44,10 +45,11 @@ export function PlayerPage() {
 
   const gameById = new Map(games?.map((g) => [g.id, g]));
   const thisMonth = currentMonth();
-  const monthRows = (grandPrix.data ?? []).filter((r) => r.month === thisMonth);
+  const gpRows = totalGrandPrix(grandPrix.data ?? [], games ?? [], gpSlugs);
+  const monthRows = gpRows.filter((r) => r.month === thisMonth);
   const gpIndex = monthRows.findIndex((r) => r.player_id === playerId);
   const gp = gpIndex >= 0 ? monthRows[gpIndex] : null;
-  const titles = champions(grandPrix.data ?? [], thisMonth).filter((c) => c.player_id === playerId);
+  const titles = champions(gpRows, thisMonth).filter((c) => c.player_id === playerId);
   const streakOf = new Map(
     (streaks.data ?? []).filter((s) => s.player_id === playerId).map((s) => [s.game_id, s]),
   );
