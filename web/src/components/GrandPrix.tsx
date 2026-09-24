@@ -47,7 +47,7 @@ export function GrandPrix({ games }: { games: Game[] }) {
   return (
     <section className="panel">
       <div className="panel-head">
-        <h2 className="panel-title">Grand Prix · {isToday ? 'Today' : formatMonth(month)}</h2>
+        <h2 className="panel-title">👑 Grand Prix · {isToday ? 'Today' : formatMonth(month)}</h2>
         <div className="gp-controls">
           <div className="toggle" role="group" aria-label="Grand Prix period">
             <button type="button" aria-pressed={isToday} onClick={() => setMode('today')}>
