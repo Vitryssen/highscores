@@ -30,6 +30,8 @@ No account needed: just type your name. It's remembered in your browser, and nam
 
 Each game follows its own daily reset, so "today" always means the same puzzle the game itself is showing. A countdown on every game shows when the next puzzle arrives, and the board rolls over by itself at that moment. More games can be added by the admin, including games with unusual formats: they paste a sample result and click the puzzle number and the score.
 
+Slack and Discord shortcodes like `:large_green_square:` are fine. They're shown as the real emoji.
+
 **Missing a game?** [Request it](https://vitryssen.github.io/highscores/#/request) with a link and a result you shared. If you paste a result the site doesn't recognise, it offers to request that game for you. Requests are listed publicly as wanted, added or declined. Asking for a game that's already been requested adds a +1 to it, so the admin can see what people want most.
 
 For example, a request for Connections:
@@ -68,8 +70,6 @@ I've completed all the modes of #LoLdle #1540 today:
 
 https://loldle.net
 ```
-
-Slack and Discord shortcodes like `:large_green_square:` are fine. They're shown as the real emoji.
 
 ## Scoring
 
