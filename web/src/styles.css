@@ -922,3 +922,36 @@ code,
   justify-self: center;
   margin-top: 4px;
 }
+
+/* Rearranging the game cards */
+
+.cards-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+.cards-head .section-title {
+  margin: 0;
+}
+.home-grid > .cards-head {
+  margin-bottom: -8px;
+}
+.card-slot {
+  display: grid;
+  gap: 8px;
+  cursor: grab;
+}
+.card-slot.dragging {
+  opacity: 0.5;
+}
+/* While arranging, a card is something to move, not a link to follow. */
+.arranging .game-card {
+  pointer-events: none;
+  border-style: dashed;
+  border-color: var(--cyan);
+}
+.card-controls {
+  justify-content: space-between;
+  align-items: center;
+}

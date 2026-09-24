@@ -4,6 +4,7 @@ import type { Game } from '@shared/types.ts';
 import { fetchGrandPrixByGame } from '../lib/api.ts';
 import { champions, DEFAULT_GP_GAMES, totalGrandPrix, useGrandPrixGames } from '../lib/grandPrix.ts';
 import { currentMonth, formatMonth } from '../lib/months.ts';
+import { orderGames } from '../lib/gameOrder.ts';
 import { PlayerLink } from './PlayerLink.tsx';
 
 export function GrandPrix({ games }: { games: Game[] }) {
@@ -37,7 +38,7 @@ export function GrandPrix({ games }: { games: Game[] }) {
         </div>
       </div>
       <div className="toggle gp-games" role="group" aria-label="Games in the Grand Prix">
-        {games.map((g) => {
+        {orderGames(games, DEFAULT_GP_GAMES).map((g) => {
           const on = slugs.includes(g.slug);
           return (
             <button
