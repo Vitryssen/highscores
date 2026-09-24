@@ -955,3 +955,37 @@ code,
   justify-content: space-between;
   align-items: center;
 }
+
+/* Request examples */
+
+.request-steps {
+  margin: 0 0 6px;
+  padding-left: 20px;
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+}
+.request-example {
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+}
+.request-example summary {
+  cursor: pointer;
+  color: var(--cyan);
+  font-size: 13px;
+}
+.request-example dl {
+  display: grid;
+  gap: 4px;
+  margin: 10px 0 0;
+}
+.request-example dt {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.request-example dd {
+  margin: 0 0 6px;
+}

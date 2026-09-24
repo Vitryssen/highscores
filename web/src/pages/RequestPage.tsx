@@ -10,6 +10,23 @@ import { load, NAME_KEY } from '../lib/storage.ts';
 
 const STATUS_LABEL = { pending: 'Wanted', added: 'Added', declined: 'Declined' } as const;
 
+/** Filled-in requests shown as a guide to what the admin needs. */
+const EXAMPLES = [
+  {
+    name: 'Connections',
+    url: 'https://www.nytimes.com/games/connections',
+    paste: 'Connections\nPuzzle #1201\n🟨🟪🟦🟦\n🟦🟩🟪🟦\n🟩🟩🟨🟩\n🟩🟩🟩🟩\n🟨🟨🟨🟨\n🟪🟪🟪🟪\n🟦🟦🟦🟦',
+    note: 'Fewest mistakes wins: every mixed row is one.',
+  },
+  {
+    name: 'LoLdle',
+    url: 'https://loldle.net',
+    paste:
+      "I've completed all the modes of #LoLdle #1540 today:\n❓ Classic: 11\n💬 Quote: 2\n😀 Emoji: 54\n\nhttps://loldle.net",
+    note: 'Add up the guesses from all modes. Fewest wins.',
+  },
+];
+
 export function RequestPage() {
   const ids = useId();
   const queryClient = useQueryClient();
@@ -157,6 +174,33 @@ export function RequestPage() {
             </p>
           )}
         </form>
+
+        <section className="panel stack">
+          <h2 className="panel-title">How to request</h2>
+          <ol className="request-steps">
+            <li>Play the game and copy the result it lets you share.</li>
+            <li>Fill in the game's name and a link to where it's played.</li>
+            <li>Paste the result as-is. The admin uses it to teach the site the format.</li>
+            <li>Use the note to say how scores compare, if it isn't obvious.</li>
+          </ol>
+          {EXAMPLES.map((ex) => (
+            <details key={ex.name} className="request-example">
+              <summary>Example: {ex.name}</summary>
+              <dl>
+                <dt>Game</dt>
+                <dd>{ex.name}</dd>
+                <dt>Link</dt>
+                <dd className="request-url">{ex.url}</dd>
+                <dt>Result</dt>
+                <dd>
+                  <pre className="paste request-sample">{ex.paste}</pre>
+                </dd>
+                <dt>Note</dt>
+                <dd>{ex.note}</dd>
+              </dl>
+            </details>
+          ))}
+        </section>
 
         <section className="panel">
           <h2 className="panel-title">Requested games</h2>
