@@ -8,8 +8,11 @@ updates:
       minor-and-patch:
         update-types: [minor, patch]
     ignore:
-      # eslint-plugin-react doesn't support ESLint 10 yet, so `npm ci` fails. Drop this once it does.
+      # eslint-plugin-react doesn't support ESLint 10 yet, so `npm ci` fails. @eslint/js 10 needs
+      # ESLint 10, so it waits too. Drop both once the plugin supports it.
       - dependency-name: eslint
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@eslint/js'
         update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
