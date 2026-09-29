@@ -934,6 +934,10 @@ code,
 .cards-head .section-title {
   margin: 0;
 }
+.cards-more {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
 .home-grid > .cards-head {
   margin-bottom: -8px;
 }
